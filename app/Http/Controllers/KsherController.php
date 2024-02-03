@@ -21,9 +21,6 @@ class KsherController extends Controller
                 ],500);
             }
             $validatedData = $request->validated(); // validate body request
-            if(!$validatedData){
-
-            }
             Log::channel("ksher")->info('gatewayPay request', ['request' => $request->all()]);
             $data = [
                 'appid' => $appid,
@@ -38,22 +35,22 @@ class KsherController extends Controller
             $response = Http::post($endpoint, $data);
             Log::channel("ksher")->info('gatewayPay response', ['response' => $response->json()]);
             $result = $response->json();
-            if(isset($result['error'])){
+            if(isset($result['error'])){ // error case 
                 return response()->json([
                     'success'=>false,
                     'message'=>'failed',
                     'errors'=>$result['error'],
                 ],200);
-            }else if($result['code'] == 0){
+            }else if($result['code'] == 0){ // success case and redirect 
                 return redirect($result['data']['pay_content']);
-            }else{
+            }else{ // for other case 
                 return response()->json([
                     'success'=>false,
                     'message'=>'failed',
                     'errors'=>'Unknow error',
                 ],200);
             }
-            dd($response);
+            // dd($response);
         }catch(\Exception $e){
             Log::channel("ksher")->error('gatewayPay error', ['Exception case' => $e->getMessage()]);
             return response()->json([
